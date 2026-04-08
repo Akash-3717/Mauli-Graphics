@@ -4,12 +4,12 @@ const configuredBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
 const isBrowser = typeof window !== 'undefined';
 const isLocalhost = isBrowser && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
-// In production, prefer explicit API URL via env. Fallback to /api for reverse-proxy setups.
-const baseURL = configuredBaseUrl || (isLocalhost ? 'http://localhost:3003' : '/api');
+// In production, prefer an explicit backend URL to avoid proxy latency/timeouts.
+const baseURL = configuredBaseUrl || (isLocalhost ? 'http://localhost:3003' : 'https://mauli-graphics-2.onrender.com');
 
 const api = axios.create({
   baseURL,
-  timeout: 15000,
+  timeout: 60000,
 });
 
 api.interceptors.request.use(
