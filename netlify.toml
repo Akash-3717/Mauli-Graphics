@@ -17,3 +17,8 @@
   to = "https://mauli-graphics-2.onrender.com/uploads/:splat"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
