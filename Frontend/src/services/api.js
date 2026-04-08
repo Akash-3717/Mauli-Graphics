@@ -4,7 +4,8 @@ const configuredBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
 const isBrowser = typeof window !== 'undefined';
 const isLocalhost = isBrowser && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 const localApiOrigin = 'http://localhost:3003';
-const productionApiOrigin = 'https://mauli-graphics-3.onrender.com';
+const productionApiOrigin = 'https://mauli-graphics-2.onrender.com';
+const productionFallbackApiOrigin = 'https://mauli-graphics-3.onrender.com';
 
 // In production, prefer an explicit backend URL to avoid proxy latency/timeouts.
 const baseURL = configuredBaseUrl || (isLocalhost ? localApiOrigin : productionApiOrigin);
@@ -31,6 +32,9 @@ const api = axios.create({
   timeout: 120000,
 });
 
+const canFailoverToFallback = !isLocalhost && !configuredBaseUrl;
+const failoverBaseUrl = productionFallbackApiOrigin;
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -46,9 +50,18 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const isNetworkError = error?.message === 'Network Error';
+    const alreadyRetried = Boolean(error?.config?._baseUrlFailedOver);
+
+    if (isNetworkError && canFailoverToFallback && !alreadyRetried && api.defaults.baseURL !== failoverBaseUrl) {
+      api.defaults.baseURL = failoverBaseUrl;
+      error.config._baseUrlFailedOver = true;
+      return api.request(error.config);
+    }
+
     if (error?.message === 'Network Error') {
-      error.message = `Network Error: cannot reach API at ${baseURL}. Set VITE_API_BASE_URL to your backend URL (example: https://your-backend-domain.com).`;
+      error.message = `Network Error: cannot reach API at ${api.defaults.baseURL}. Set VITE_API_BASE_URL to your backend URL (example: https://your-backend-domain.com).`;
     }
     return Promise.reject(error);
   }
