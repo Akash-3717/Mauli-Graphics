@@ -18,7 +18,17 @@ const MONGO_DB_URL = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONG
 
 const app = express();
 
-app.use(cors());
+// Trust proxy to get correct protocol/host headers
+app.set('trust proxy', 1);
+
+// Configure CORS with proper headers for image loading
+app.use(cors({
+	origin: true,
+	credentials: true,
+	methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+	allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

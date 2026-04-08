@@ -5,6 +5,23 @@ import DesignLoader from '../components/common/DesignLoader';
 import { getDesigns } from '../services/api';
 import portfolioImage from '../assets/Portfolio/WhatsApp Image 2026-03-05 at 3.32.13 PM.jpeg';
 
+const normalizeDesignImageUrl = (rawUrl = '') => {
+  const value = String(rawUrl || '').trim();
+
+  if (!value) return '';
+
+  if (/^https?:\/\//i.test(value)) {
+    return value.replace(/^http:\/\//i, 'https://');
+  }
+
+  const normalizedPath = value.replace(/^\/+/, '');
+  if (normalizedPath.startsWith('uploads/')) {
+    return `/api/${normalizedPath}`;
+  }
+
+  return value;
+};
+
 function Portfolio() {
   const [designs, setDesigns] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -26,7 +43,9 @@ function Portfolio() {
           title: item.title || 'Untitled',
           category: item.category || 'Other',
           description: item.description || 'No description available',
-          imageUrl: item.imageUrl || item.image || item.url || 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80',
+          imageUrl:
+            normalizeDesignImageUrl(item.imageUrl || item.image || item.url) ||
+            'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80',
           createdAt: item.createdAt || item.updatedAt || null,
         }));
 
