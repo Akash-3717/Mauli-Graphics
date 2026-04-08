@@ -9,7 +9,7 @@ const baseURL = configuredBaseUrl || (isLocalhost ? 'http://localhost:3003' : 'h
 
 const api = axios.create({
   baseURL,
-  timeout: 60000,
+  timeout: 120000,
 });
 
 api.interceptors.request.use(
@@ -36,8 +36,20 @@ api.interceptors.response.use(
 );
 
 export async function getDesigns() {
-  const response = await api.get('/design/all');
-  return response.data;
+  try {
+    const response = await api.get('/design/all');
+    return response.data;
+  } catch (error) {
+    const isTimeout = error?.code === 'ECONNABORTED' || /timeout/i.test(error?.message || '');
+
+    if (!isTimeout || error?.config?._retried) {
+      throw error;
+    }
+
+    error.config._retried = true;
+    const retryResponse = await api.request(error.config);
+    return retryResponse.data;
+  }
 }
 
 export async function loginAdmin(payload) {
