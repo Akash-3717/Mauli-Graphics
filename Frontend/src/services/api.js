@@ -4,7 +4,7 @@ const configuredBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
 const isBrowser = typeof window !== 'undefined';
 const isLocalhost = isBrowser && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 const localApiOrigin = 'http://localhost:3003';
-const productionApiOrigin = 'https://mauli-graphics-2.onrender.com';
+const productionApiOrigin = 'https://mauli-graphics-3.onrender.com';
 
 // In production, prefer an explicit backend URL to avoid proxy latency/timeouts.
 const baseURL = configuredBaseUrl || (isLocalhost ? localApiOrigin : productionApiOrigin);
