@@ -1,4 +1,5 @@
 import React from 'react';
+import { normalizeDesignImageUrl } from '../../services/api';
 function DesignTable({ designs, onDelete, deletingId }) {
   return (
     <section className="rounded-xl border border-slate-200 bg-white/80 p-5">
@@ -25,7 +26,7 @@ function DesignTable({ designs, onDelete, deletingId }) {
               designs.map((design) => (
                 <tr key={design.id} className="border-b border-slate-100">
                   <td className="px-3 py-2">
-                    <img src={design.imageUrl} alt={design.title} className="h-12 w-12 rounded object-cover" />
+                    <img src={normalizeDesignImageUrl(design.imageUrl)} alt={design.title} className="h-12 w-12 rounded object-cover" />
                   </td>
                   <td className="px-3 py-2">{design.title}</td>
                   <td className="px-3 py-2">{design.category}</td>

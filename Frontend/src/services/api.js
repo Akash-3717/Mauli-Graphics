@@ -3,9 +3,28 @@ import axios from 'axios';
 const configuredBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
 const isBrowser = typeof window !== 'undefined';
 const isLocalhost = isBrowser && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const localApiOrigin = 'http://localhost:3003';
+const productionApiOrigin = 'https://mauli-graphics-2.onrender.com';
 
 // In production, prefer an explicit backend URL to avoid proxy latency/timeouts.
-const baseURL = configuredBaseUrl || (isLocalhost ? 'http://localhost:3003' : 'https://mauli-graphics-2.onrender.com');
+const baseURL = configuredBaseUrl || (isLocalhost ? localApiOrigin : productionApiOrigin);
+
+export function normalizeDesignImageUrl(rawUrl = '') {
+  const value = String(rawUrl || '').trim();
+
+  if (!value) return '';
+
+  if (/^https?:\/\//i.test(value)) {
+    return value.replace(/^http:\/\//i, 'https://');
+  }
+
+  const normalizedPath = value.replace(/^\/+/, '');
+  if (normalizedPath.startsWith('uploads/')) {
+    return `${isLocalhost ? localApiOrigin : productionApiOrigin}/${normalizedPath}`;
+  }
+
+  return value;
+}
 
 const api = axios.create({
   baseURL,

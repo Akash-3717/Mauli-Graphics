@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UploadForm from '../../components/admin/UploadForm';
 import DesignTable from '../../components/admin/DesignTable';
-import { deleteDesign, getDesigns, uploadDesign } from '../../services/api';
+import { deleteDesign, getDesigns, normalizeDesignImageUrl, uploadDesign } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 function Dashboard() {
@@ -26,7 +26,9 @@ function Dashboard() {
         id: item._id || item.id || String(index),
         title: item.title || 'Untitled',
         category: item.category || 'Other',
-        imageUrl: item.imageUrl || item.image || item.url || 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=300&q=80',
+        imageUrl:
+          normalizeDesignImageUrl(item.imageUrl || item.image || item.url) ||
+          'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=300&q=80',
       }));
       setDesigns(normalized);
     } catch (fetchError) {

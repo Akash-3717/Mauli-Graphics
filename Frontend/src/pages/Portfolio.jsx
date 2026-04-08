@@ -2,25 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import FilterButtons from '../components/portfolio/FilterButtons';
 import PortfolioGrid from '../components/portfolio/PortfolioGrid';
 import DesignLoader from '../components/common/DesignLoader';
-import { getDesigns } from '../services/api';
+import { getDesigns, normalizeDesignImageUrl } from '../services/api';
 import portfolioImage from '../assets/Portfolio/WhatsApp Image 2026-03-05 at 3.32.13 PM.jpeg';
-
-const normalizeDesignImageUrl = (rawUrl = '') => {
-  const value = String(rawUrl || '').trim();
-
-  if (!value) return '';
-
-  if (/^https?:\/\//i.test(value)) {
-    return value.replace(/^http:\/\//i, 'https://');
-  }
-
-  const normalizedPath = value.replace(/^\/+/, '');
-  if (normalizedPath.startsWith('uploads/')) {
-    return `/api/${normalizedPath}`;
-  }
-
-  return value;
-};
 
 function Portfolio() {
   const [designs, setDesigns] = useState([]);

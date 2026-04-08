@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import PortfolioGrid from '../components/portfolio/PortfolioGrid';
 import DesignLoader from '../components/common/DesignLoader';
 import FlexPrinterHeroAnimation from '../components/common/FlexPrinterHeroAnimation';
-import { getDesigns } from '../services/api';
+import { getDesigns, normalizeDesignImageUrl } from '../services/api';
 
 function Home() {
   const [designs, setDesigns] = useState([]);
@@ -24,9 +24,7 @@ function Home() {
           category: item.category || 'Other',
           description: item.description || 'No description available',
           imageUrl:
-            item.imageUrl ||
-            item.image ||
-            item.url ||
+            normalizeDesignImageUrl(item.imageUrl || item.image || item.url) ||
             'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=900&q=80',
           createdAt: item.createdAt || item.updatedAt || null,
         }));

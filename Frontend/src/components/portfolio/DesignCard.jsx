@@ -1,4 +1,5 @@
 import React from 'react';
+import { normalizeDesignImageUrl } from '../../services/api';
 function DesignCard({ design, onPreview }) {
   const handleOpenPreview = () => {
     if (onPreview) {
@@ -25,7 +26,7 @@ function DesignCard({ design, onPreview }) {
     >
       <div className="aspect-4/3 overflow-hidden bg-slate-200">
         <img
-          src={design.imageUrl}
+          src={normalizeDesignImageUrl(design.imageUrl)}
           alt={design.title}
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           loading="lazy"
