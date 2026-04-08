@@ -5,11 +5,11 @@ const normalizeImagePath = (filePath = '') => filePath.replace(/\\/g, '/');
 const buildImageUrl = (req, filePath = '') => {
 	if (!filePath) return '';
 	if (/^https?:\/\//i.test(filePath)) return filePath;
-	
-	// Use X-Forwarded-Proto for proper HTTPS detection behind proxies
-	const protocol = req.get('X-Forwarded-Proto') || req.protocol || 'https';
+
 	const host = req.get('X-Forwarded-Host') || req.get('host');
-	
+	const isLocalHost = /^(localhost|127\.0\.0\.1)(:\d+)?$/i.test(host || '');
+	const protocol = isLocalHost ? (req.protocol || 'http') : 'https';
+
 	const normalizedPath = normalizeImagePath(filePath).replace(/^\//, '');
 	return `${protocol}://${host}/${normalizedPath}`;
 };
