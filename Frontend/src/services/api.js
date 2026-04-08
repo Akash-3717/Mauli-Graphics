@@ -1,7 +1,14 @@
 import axios from 'axios';
 
+const configuredBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+const isBrowser = typeof window !== 'undefined';
+const isLocalhost = isBrowser && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+// In production, prefer explicit API URL via env. Fallback to /api for reverse-proxy setups.
+const baseURL = configuredBaseUrl || (isLocalhost ? 'http://localhost:3003' : '/api');
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3003',
+  baseURL,
   timeout: 15000,
 });
 
@@ -16,6 +23,16 @@ api.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.message === 'Network Error') {
+      error.message = `Network Error: cannot reach API at ${baseURL}. Set VITE_API_BASE_URL to your backend URL (example: https://your-backend-domain.com).`;
+    }
+    return Promise.reject(error);
+  }
 );
 
 export async function getDesigns() {
