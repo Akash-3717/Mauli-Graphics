@@ -10,21 +10,35 @@ const productionFallbackApiOrigin = 'https://mauli-graphics-3.onrender.com';
 // In production, prefer an explicit backend URL to avoid proxy latency/timeouts.
 const baseURL = configuredBaseUrl || (isLocalhost ? localApiOrigin : productionApiOrigin);
 
+const getApiOrigin = () => {
+  try {
+    return new URL(baseURL).origin;
+  } catch {
+    return baseURL.replace(/\/$/, '');
+  }
+};
+
+const apiOrigin = getApiOrigin();
+
 export function normalizeDesignImageUrl(rawUrl = '') {
   const value = String(rawUrl || '').trim();
 
   if (!value) return '';
 
   if (/^https?:\/\//i.test(value)) {
+    if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(value)) {
+      return value;
+    }
+
     return value.replace(/^http:\/\//i, 'https://');
   }
 
-  const normalizedPath = value.replace(/^\/+/, '');
+  const normalizedPath = value.replace(/\\/g, '/').replace(/^\/+/, '');
   if (normalizedPath.startsWith('uploads/')) {
-    return `${isLocalhost ? localApiOrigin : productionApiOrigin}/${normalizedPath}`;
+    return `${apiOrigin}/${normalizedPath}`;
   }
 
-  return value;
+  return normalizedPath;
 }
 
 const api = axios.create({

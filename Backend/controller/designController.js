@@ -2,16 +2,34 @@ const Design = require('../model/desing');
 
 const normalizeImagePath = (filePath = '') => filePath.replace(/\\/g, '/');
 
+const getPublicBaseUrl = (req) => {
+	const configuredBaseUrl = (process.env.BACKEND_PUBLIC_URL || process.env.PUBLIC_BASE_URL || '').trim();
+
+	if (configuredBaseUrl) {
+		return configuredBaseUrl.replace(/\/$/, '');
+	}
+
+	const host = req.get('X-Forwarded-Host') || req.get('host');
+	if (!host) {
+		return '';
+	}
+
+	const protocol = (req.get('X-Forwarded-Proto') || req.protocol || 'https').split(',')[0].trim();
+	return `${protocol}://${host}`;
+};
+
 const buildImageUrl = (req, filePath = '') => {
 	if (!filePath) return '';
 	if (/^https?:\/\//i.test(filePath)) return filePath;
 
-	const host = req.get('X-Forwarded-Host') || req.get('host');
-	const isLocalHost = /^(localhost|127\.0\.0\.1)(:\d+)?$/i.test(host || '');
-	const protocol = isLocalHost ? (req.protocol || 'http') : 'https';
-
 	const normalizedPath = normalizeImagePath(filePath).replace(/^\//, '');
-	return `${protocol}://${host}/${normalizedPath}`;
+	const baseUrl = getPublicBaseUrl(req);
+
+	if (baseUrl) {
+		return `${baseUrl}/${normalizedPath}`;
+	}
+
+	return `/${normalizedPath}`;
 };
 
 exports.addDesign = async (req, res) => {

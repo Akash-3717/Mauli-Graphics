@@ -1,8 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Admin = require('../model/Admin');
-
-const getJwtSecret = () => process.env.ADMIN_JWT_SECRET || 'change-this-admin-secret';
+const { getJwtSecret } = require('../service/jwtSecret');
 
 const buildToken = (adminId) => {
     return jwt.sign({ id: adminId }, getJwtSecret(), { expiresIn: '7d' });
