@@ -20,6 +20,18 @@ const getApiOrigin = () => {
 
 const apiOrigin = getApiOrigin();
 
+const getUploadsOrigin = () => {
+  if (configuredBaseUrl) {
+    return apiOrigin;
+  }
+
+  if (isLocalhost) {
+    return localApiOrigin;
+  }
+
+  return isBrowser ? window.location.origin.replace(/\/$/, '') : '';
+};
+
 export function normalizeDesignImageUrl(rawUrl = '') {
   const value = String(rawUrl || '').trim();
 
@@ -35,7 +47,8 @@ export function normalizeDesignImageUrl(rawUrl = '') {
 
   const normalizedPath = value.replace(/\\/g, '/').replace(/^\/+/, '');
   if (normalizedPath.startsWith('uploads/')) {
-    return `${apiOrigin}/${normalizedPath}`;
+    const uploadsOrigin = getUploadsOrigin();
+    return uploadsOrigin ? `${uploadsOrigin}/${normalizedPath}` : `/${normalizedPath}`;
   }
 
   return normalizedPath;
